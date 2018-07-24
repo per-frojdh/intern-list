@@ -2,6 +2,7 @@
 // require('dotenv')
 //   .config();
 
+import 'isomorphic-fetch';
 import './util/errors/unhandled-errors.mjs';
 
 import Koa from 'koa';
@@ -13,23 +14,24 @@ import logger from './util/logger';
 import middlewares from './middleware';
 import errorMiddlewares from './util/errors/error-middlewares.mjs';
 
-import users from './components/users';
-import organization from './components/organization';
+import list from './components/list';
+import steam from './components/steam';
 
 const app = new Koa();
 
+const router = combineRouters([list.router, steam.router]);
+app.use(router);
+
 app
   .use(helmet())
-  .use(errorMiddlewares.errorHandler)
-  .use(errorMiddlewares.httpCodeHandler)
+  // .use(errorMiddlewares.httpCodeHandler)
+  // .use(errorMiddlewares.errorHandler)
   .use(middlewares.transactionIdHandler)
   .use(bodyParser({
     enableTypes: ['form', 'urlencoded', 'json'],
   }));
 
-const router = combineRouters([users.router, organization.router]);
 
-app.use(router);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log('info', `Server started on ${PORT}`));
